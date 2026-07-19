@@ -62,10 +62,12 @@ if state_dict is not None:
 
 model.eval()
 
-def enhance_clarity(pil_img, boost_factor=2.2):
-    sharp = ImageEnhance.Sharpness(pil_img).enhance(boost_factor)
-    contrast = ImageEnhance.Contrast(sharp).enhance(1.15)
-    return contrast
+def enhance_clarity(pil_img, boost_factor=2.8):
+    sharpened = pil_img.filter(ImageFilter.UnsharpMask(radius=2, percentage=160, threshold=2))
+    sharp = ImageEnhance.Sharpness(sharpened).enhance(boost_factor)
+    contrast = ImageEnhance.Contrast(sharp).enhance(1.22)
+    color = ImageEnhance.Color(contrast).enhance(1.12)
+    return color
 
 # Serve Web UI Frontend files
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "frontend")

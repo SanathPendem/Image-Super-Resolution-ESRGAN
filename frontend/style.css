@@ -542,6 +542,17 @@ body {
     object-fit: contain;
 }
 
+/* Authentic Low-Res Pixelation vs High-Res Smooth Sharpness */
+#uploaded-img {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+#enhanced-img {
+    image-rendering: smooth;
+    image-rendering: auto;
+}
+
 /* Action Bar */
 .action-bar {
     margin-top: 20px;

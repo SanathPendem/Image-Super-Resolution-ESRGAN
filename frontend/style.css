@@ -1,5 +1,6 @@
-/* Variation D: Dark Slate Charcoal & Muted Sage Editorial Studio */
-:root {
+/* Theme Color Variables */
+:root, [data-theme="dark"] {
+    /* Dark Slate Charcoal & Muted Sage (Default Dark Theme) */
     --bg-main: #12171d;
     --card-bg: #1a2129;
     --card-bg-elevated: #222b35;
@@ -7,7 +8,7 @@
     --border-accent: rgba(132, 169, 140, 0.3);
     --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     
-    /* Color Palette Accents */
+    /* Accents */
     --sage-accent: #84a98c;
     --sage-dark: #52796f;
     --rose-gold: #e29578;
@@ -15,7 +16,7 @@
     --accent-gradient: linear-gradient(135deg, #84a98c 0%, #52796f 50%, #e29578 100%);
     --accent-glow: rgba(132, 169, 140, 0.25);
     
-    /* Typography Colors */
+    /* Typography & Surfaces */
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --text-subtle: #64748b;
@@ -26,19 +27,44 @@
     --success-color: #10b981;
 }
 
+[data-theme="light"] {
+    /* Light Editorial Studio Theme */
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --card-bg-elevated: #f1f5f9;
+    --border-color: #e2e8f0;
+    --border-accent: rgba(82, 121, 111, 0.3);
+    --card-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    
+    /* Accents */
+    --sage-accent: #52796f;
+    --sage-dark: #354f52;
+    --rose-gold: #c86d51;
+    --champagne: #c08457;
+    --accent-gradient: linear-gradient(135deg, #52796f 0%, #354f52 50%, #c86d51 100%);
+    --accent-glow: rgba(82, 121, 111, 0.2);
+    
+    /* Typography & Surfaces */
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+    --dropzone-bg: #f1f5f9;
+    --dropzone-border: #cbd5e1;
+    --metric-bg: #f8fafc;
+    --slider-handle-bg: #52796f;
+    --success-color: #10b981;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 body {
     background-color: var(--bg-main);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(132, 169, 140, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(226, 149, 120, 0.06) 0px, transparent 50%);
     color: var(--text-main);
     min-height: 100vh;
     display: flex;
@@ -105,6 +131,26 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--dropzone-bg);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--sage-accent);
+    color: var(--sage-accent);
 }
 
 .status-indicator {
@@ -216,7 +262,7 @@ body {
 
 .file-types {
     font-size: 11px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     padding: 4px 10px;
     border-radius: 12px;
     color: var(--text-muted);
@@ -458,7 +504,7 @@ body {
 .badge-after {
     right: 14px;
     background: var(--sage-accent);
-    color: #12171d;
+    color: #ffffff;
     font-weight: 800;
     box-shadow: 0 0 15px var(--accent-glow);
 }
@@ -489,7 +535,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #12171d;
+    color: #ffffff;
     font-size: 10px;
     gap: 2px;
     box-shadow: 0 0 15px var(--accent-glow);
@@ -518,5 +564,5 @@ body {
 
 .btn-secondary:hover {
     background: var(--sage-accent);
-    color: #12171d;
+    color: #ffffff;
 }

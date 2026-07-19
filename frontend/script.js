@@ -1,22 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme Switcher Logic
+    // Theme Switcher Logic with localStorage persistence
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const themeText = document.getElementById('theme-text');
     const htmlElement = document.documentElement;
 
+    // Load saved theme preference (default to dark)
+    const savedTheme = localStorage.getItem('esrgan-theme') || 'dark';
+    applyTheme(savedTheme);
+
     themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = htmlElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            htmlElement.setAttribute('data-theme', 'light');
-            themeIcon.className = 'fa-solid fa-sun';
-            themeText.textContent = 'Light Mode';
-        } else {
-            htmlElement.setAttribute('data-theme', 'dark');
+        const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+        localStorage.setItem('esrgan-theme', newTheme);
+    });
+
+    function applyTheme(theme) {
+        htmlElement.setAttribute('data-theme', theme);
+        if (theme === 'light') {
             themeIcon.className = 'fa-solid fa-moon';
             themeText.textContent = 'Dark Mode';
+        } else {
+            themeIcon.className = 'fa-solid fa-sun';
+            themeText.textContent = 'Light Mode';
         }
-    });
+    }
 
     // Elements
     const dropzone = document.getElementById('dropzone');

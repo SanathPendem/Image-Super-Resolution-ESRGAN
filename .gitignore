@@ -1,19 +1,33 @@
-# PyTorch & Large Model Checkpoints (>100MB)
-checkpoints/esrgan_latest.pth
-*.pth
-!checkpoints/esrgan_best.pth
-
-# Python & Environment
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.env
-venv/
-env/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
 
-# IDE & OS Files
-.vscode/
+# Large Model Checkpoints (>100MB)
+checkpoints/*.pth
+checkpoints/*.pt
+checkpoints/*.ckpt
+checkpoints/*.onnx
+checkpoints/*.bin
+!checkpoints/README.md
+
+# Dataset Image Files
+dataset/train/
+dataset/valid/
+dataset/DIV2K/
+battery-report.html
+
+# Local Environments & IDEs
+venv/
+.venv/
+env/
 .idea/
-*.html
-.tempmediaStorage/
+.vscode/

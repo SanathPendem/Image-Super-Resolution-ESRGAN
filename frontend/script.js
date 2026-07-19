@@ -1,69 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme Switcher Logic with localStorage persistence
+    // Theme Switcher Logic
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
-    const themeText = document.getElementById('theme-text');
     const htmlElement = document.documentElement;
 
-    // Load saved theme preference (default to dark)
-    const savedTheme = localStorage.getItem('esrgan-theme') || 'dark';
+    const savedTheme = localStorage.getItem('lumina-theme') || 'dark';
     applyTheme(savedTheme);
 
     themeToggleBtn.addEventListener('click', () => {
         const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
-        localStorage.setItem('esrgan-theme', newTheme);
+        localStorage.setItem('lumina-theme', newTheme);
     });
 
     function applyTheme(theme) {
         htmlElement.setAttribute('data-theme', theme);
         themeIcon.className = 'fa-solid fa-circle-half-stroke';
-        if (theme === 'light') {
-            themeText.textContent = 'Dark Mode';
-        } else {
-            themeText.textContent = 'Light Mode';
-        }
     }
 
     // Elements
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('file-input');
-    const dropzonePrompt = document.getElementById('dropzone-prompt');
-    const previewContainer = document.getElementById('preview-container');
-    const lrPreviewImg = document.getElementById('lr-preview-img');
-    const removeBtn = document.getElementById('remove-btn');
+    const sampleBtn = document.getElementById('sample-btn');
+    
+    const comparisonView = document.getElementById('comparison-view');
+    const beforeImg = document.getElementById('before-img');
+    const afterImg = document.getElementById('after-img');
+    const afterViewWrapper = document.getElementById('after-view-wrapper');
+    const sliderDivider = document.getElementById('slider-divider');
     
     const sharpenSlider = document.getElementById('sharpen-slider');
     const sharpenVal = document.getElementById('sharpen-val');
-    
     const processBtn = document.getElementById('process-btn');
     const btnSpinner = document.getElementById('btn-spinner');
-    const btnText = processBtn.querySelector('.btn-text');
-    
-    const placeholderState = document.getElementById('placeholder-state');
-    const sliderContainer = document.getElementById('slider-container');
-    const beforeImg = document.getElementById('before-img');
-    const afterImg = document.getElementById('after-img');
-    const afterWrapper = document.getElementById('after-wrapper');
-    const sliderDivider = document.getElementById('slider-divider');
-    const actionBar = document.getElementById('action-bar');
-    const downloadLink = document.getElementById('download-link');
+    const btnTxt = processBtn.querySelector('.btn-txt');
+    const resetBtn = document.getElementById('reset-btn');
+    const downloadBtn = document.getElementById('download-btn');
     
     const psnrVal = document.getElementById('psnr-val');
     const ssimVal = document.getElementById('ssim-val');
     const latencyVal = document.getElementById('latency-val');
+    
+    const projectFilename = document.getElementById('project-filename');
+    const projectSpecs = document.getElementById('project-specs');
 
     let selectedFile = null;
 
-    // 1. Sharpening Slider Input
+    // 1. Sharpening Slider
     sharpenSlider.addEventListener('input', (e) => {
         sharpenVal.textContent = `${e.target.value}×`;
     });
 
-    // 2. Dropzone Click & Drag Event Handlers
+    // 2. Dropzone & File Input Handlers
     dropzone.addEventListener('click', (e) => {
-        if (e.target !== removeBtn && !removeBtn.contains(e.target)) {
+        if (e.target !== sampleBtn && !sampleBtn.contains(e.target)) {
             fileInput.click();
         }
     });
@@ -74,61 +65,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('drag-active');
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('drag-active');
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('drag-active');
-        if (e.dataTransfer.files.length > 0) {
-            handleFileSelect(e.dataTransfer.files[0]);
-        }
-    });
-
-    removeBtn.addEventListener('click', (e) => {
+    // Preset Sample Image Loader
+    sampleBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        resetFileInput();
+        try {
+            const resp = await fetch('/sample-image');
+            if (!resp.ok) throw new Error('Sample image fetch failed');
+            const blob = await resp.blob();
+            const file = new File([blob], 'valid_0001.png', { type: 'image/png' });
+            handleFileSelect(file);
+        } catch (err) {
+            alert('Could not load preset sample image.');
+            console.error(err);
+        }
     });
 
     function handleFileSelect(file) {
         if (!file.type.match('image.*')) {
-            alert('Please select a valid image file (JPG or PNG).');
+            alert('Please select a valid image file (JPG, PNG, WEBP).');
             return;
         }
         selectedFile = file;
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            lrPreviewImg.src = e.target.result;
-            dropzonePrompt.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
+            beforeImg.src = e.target.result;
+            afterImg.src = e.target.result; // Initial baseline placeholder
+
+            dropzone.classList.add('hidden');
+            comparisonView.classList.remove('hidden');
             processBtn.disabled = false;
+            
+            projectFilename.textContent = file.name;
+            projectSpecs.textContent = `${file.type.split('/')[1].toUpperCase()} • Ready for 4x Upscale`;
+
+            setSplitPosition(50);
         };
         reader.readAsDataURL(file);
     }
 
-    function resetFileInput() {
+    // Reset Workspace
+    resetBtn.addEventListener('click', () => {
         selectedFile = null;
         fileInput.value = '';
-        lrPreviewImg.src = '';
-        dropzonePrompt.classList.remove('hidden');
-        previewContainer.classList.add('hidden');
+        beforeImg.src = '';
+        afterImg.src = '';
+        
+        comparisonView.classList.add('hidden');
+        dropzone.classList.remove('hidden');
+        
         processBtn.disabled = true;
-    }
+        downloadBtn.classList.add('disabled');
+        downloadBtn.href = '#';
 
-    // 3. Image Enhancement API Request
+        psnrVal.textContent = '-- dB';
+        ssimVal.textContent = '--';
+        latencyVal.textContent = '-- ms';
+
+        projectFilename.textContent = 'No Image Loaded';
+        projectSpecs.textContent = 'PNG / JPG • 4x ESRGAN Engine';
+    });
+
+    // 3. Upscale API Execution
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) return;
 
         processBtn.disabled = true;
         btnSpinner.classList.remove('hidden');
-        btnText.style.opacity = '0.5';
+        btnTxt.style.opacity = '0.5';
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             processBtn.disabled = false;
             btnSpinner.classList.add('hidden');
-            btnText.style.opacity = '1.0';
+            btnTxt.style.opacity = '1.0';
         }
     });
 
@@ -166,37 +170,35 @@ document.addEventListener('DOMContentLoaded', () => {
         ssimVal.textContent = data.metrics.ssim_vs_bicubic;
         latencyVal.textContent = `${data.latency_ms || clientLatency} ms`;
 
-        beforeImg.src = lrPreviewImg.src;
         afterImg.src = data.enhanced_image_base64;
-        downloadLink.href = data.enhanced_image_base64;
+        downloadBtn.href = data.enhanced_image_base64;
+        downloadBtn.classList.remove('disabled');
 
-        placeholderState.classList.add('hidden');
-        sliderContainer.classList.remove('hidden');
-        actionBar.classList.remove('hidden');
+        projectSpecs.textContent = `128×128 ➔ 512×512 • PSNR +${data.metrics.psnr_vs_bicubic}dB`;
 
         setSplitPosition(50);
     }
 
-    // 4. Interactive Split Slider Handle Dragging
+    // 4. Interactive BEFORE / AFTER Split Dragging
     let isDragging = false;
 
     sliderDivider.addEventListener('mousedown', () => { isDragging = true; });
     window.addEventListener('mouseup', () => { isDragging = false; });
 
-    sliderContainer.addEventListener('mousemove', (e) => {
+    comparisonView.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         updateSliderPos(e.clientX);
     });
 
     sliderDivider.addEventListener('touchstart', () => { isDragging = true; });
     window.addEventListener('touchend', () => { isDragging = false; });
-    sliderContainer.addEventListener('touchmove', (e) => {
+    comparisonView.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         updateSliderPos(e.touches[0].clientX);
     });
 
     function updateSliderPos(clientX) {
-        const rect = sliderContainer.getBoundingClientRect();
+        const rect = comparisonView.getBoundingClientRect();
         let offsetX = clientX - rect.left;
         let percentage = (offsetX / rect.width) * 100;
 
@@ -208,6 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setSplitPosition(percentage) {
         sliderDivider.style.left = `${percentage}%`;
-        afterWrapper.style.width = `${100 - percentage}%`;
+        afterViewWrapper.style.width = `${100 - percentage}%`;
     }
 });

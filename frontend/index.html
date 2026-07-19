@@ -3,145 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESRGAN AI Super-Resolution Studio | 4x Image Upscaling</title>
+    <title>Lumina Super-Resolution Studio | 4x AI Image Upscaling</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Navigation Header -->
-        <header class="navbar">
-            <div class="logo-group">
-                <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
-                <div class="logo-text">
-                    <span class="brand-title">ESRGAN Studio</span>
-                    <span class="brand-badge">4x Neural Upscaling Engine</span>
+    <div class="app-wrapper">
+        <!-- Hero Header -->
+        <div class="hero-header">
+            <h1 class="hero-title">Lumina Super-Resolution</h1>
+            <p class="hero-subtitle">High-resolution AI upscaling suite for high-end photography & editorial studios.</p>
+        </div>
+
+        <!-- Main Studio Container Card -->
+        <div class="studio-card">
+            <!-- Studio Top Navbar -->
+            <header class="studio-navbar">
+                <div class="studio-logo">
+                    <span class="logo-text">Lumina</span>
+                    <span class="logo-tag">Studio</span>
                 </div>
-            </div>
-            <div class="header-right">
-                <button class="theme-toggle-btn" id="theme-toggle" title="Switch Theme">
-                    <i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
-                    <span id="theme-text">Light Mode</span>
-                </button>
-                <div class="status-indicator">
-                    <span class="status-dot online"></span>
-                    <span class="status-label" id="api-status">API Server Online</span>
+                <nav class="nav-links">
+                    <a href="#" class="nav-item active">Studio</a>
+                    <a href="#" class="nav-item">Gallery</a>
+                    <a href="#" class="nav-item">Projects</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
+                        <i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
+                        <span id="theme-text">Theme</span>
+                    </button>
+                    <span class="sage-badge"><i class="fa-solid fa-circle-dot"></i> Model Ready</span>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <!-- Main Content Area -->
-        <main class="main-layout">
-            <!-- Left Panel: Controls & Upload -->
-            <section class="control-panel glass-card">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Source Image</h2>
-                    <p>Select or drag an image to upscale by 4× (128×128 → 512×512)</p>
-                </div>
-
-                <!-- Dropzone -->
-                <div class="dropzone" id="dropzone">
-                    <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" hidden>
-                    <div class="dropzone-content" id="dropzone-prompt">
-                        <div class="upload-icon-wrapper">
-                            <i class="fa-solid fa-photo-film"></i>
-                        </div>
-                        <p class="drop-title">Drag & Drop Image Here</p>
-                        <p class="drop-subtitle">or click to browse from device</p>
-                        <span class="file-types">Supports JPG, PNG, WEBP</span>
-                    </div>
-                    <div class="preview-container hidden" id="preview-container">
-                        <img id="lr-preview-img" src="" alt="Low-Res Preview">
-                        <button class="remove-btn" id="remove-btn" title="Remove Image"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
-
-                <!-- Quick Preset Button -->
-                <button class="btn-sample" id="sample-btn">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Try Preset Sample Image
-                </button>
-
-                <!-- Parameter Controls -->
-                <div class="settings-group">
-                    <div class="setting-item">
-                        <div class="setting-header">
-                            <label for="sharpen-slider"><i class="fa-solid fa-crosshairs"></i> Edge Sharpening</label>
-                            <span class="setting-val" id="sharpen-val">2.2×</span>
-                        </div>
-                        <input type="range" id="sharpen-slider" min="1.0" max="3.5" step="0.1" value="2.2" class="custom-slider">
-                    </div>
-                </div>
-
-                <!-- Process Action Button -->
-                <button class="btn-primary" id="process-btn" disabled>
-                    <span class="btn-text"><i class="fa-solid fa-sparkles"></i> Enhance Image (4x Upscale)</span>
-                    <span class="btn-spinner hidden" id="btn-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-                </button>
-            </section>
-
-            <!-- Right Panel: Visual Comparison & Metrics -->
-            <section class="display-panel glass-card">
-                <!-- Metrics Bar -->
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-chart-line"></i></span>
-                        <div class="metric-info">
-                            <span class="metric-title">PSNR Gain</span>
-                            <span class="metric-value" id="psnr-val">-- dB</span>
+            <!-- Workspace Layout (Main Split Viewer + Control Sidebar) -->
+            <div class="studio-workspace">
+                <!-- Left: BEFORE / AFTER Interactive Viewer -->
+                <div class="viewer-section">
+                    <!-- Dropzone Overlay state before image selected -->
+                    <div class="drop-area" id="dropzone">
+                        <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" hidden>
+                        <div class="drop-content" id="dropzone-prompt">
+                            <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                            <h3>Upload Source Image</h3>
+                            <p>Drag & drop photo or click to browse</p>
+                            <button class="btn-sample" id="sample-btn" type="button">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Load Preset Sample Image
+                            </button>
                         </div>
                     </div>
-                    <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-layer-group"></i></span>
-                        <div class="metric-info">
-                            <span class="metric-title">SSIM Score</span>
-                            <span class="metric-value" id="ssim-val">--</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
-                        <div class="metric-info">
-                            <span class="metric-title">Latency</span>
-                            <span class="metric-value" id="latency-val">-- ms</span>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-display"></i></span>
-                        <div class="metric-info">
-                            <span class="metric-title">Resolution</span>
-                            <span class="metric-value" id="resolution-val">128 ➔ 512</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Interactive Comparison Container -->
-                <div class="comparison-wrapper">
-                    <div class="placeholder-state" id="placeholder-state">
-                        <div class="placeholder-icon"><i class="fa-solid fa-sliders"></i></div>
-                        <h3>Interactive Comparison Studio</h3>
-                        <p>Upload an image and click <strong>Enhance Image</strong> to view side-by-side Before/After results with interactive slider.</p>
-                    </div>
+                    <!-- Split Comparison Container -->
+                    <div class="before-after-container hidden" id="comparison-view">
+                        <!-- BEFORE Image View -->
+                        <div class="split-view before-view">
+                            <img id="before-img" src="" alt="Original Low Res">
+                            <span class="badge-label badge-before">BEFORE</span>
+                            <div class="image-overlay-info">
+                                <span class="overlay-title">Original (Low Res)</span>
+                                <span class="overlay-sub" id="before-res-label">128×128px • Source Image</span>
+                            </div>
+                        </div>
 
-                    <!-- Split Comparison Slider -->
-                    <div class="image-slider-container hidden" id="slider-container">
-                        <!-- Before (Bicubic Baseline) -->
-                        <div class="img-wrapper before-img-wrapper">
-                            <img id="before-img" src="" alt="Bicubic Baseline">
-                            <span class="img-badge badge-before">Bicubic (128x128)</span>
+                        <!-- AFTER Image View -->
+                        <div class="split-view after-view" id="after-view-wrapper">
+                            <img id="after-img" src="" alt="Lumina Upscaled High Res">
+                            <span class="badge-label badge-after">AFTER</span>
+                            <div class="image-overlay-info right-overlay">
+                                <span class="overlay-title">Lumina Upscaled (High Res)</span>
+                                <span class="overlay-sub" id="after-res-label">512×512px • 4x ESRGAN AI</span>
+                            </div>
                         </div>
-                        <!-- After (ESRGAN Enhanced) -->
-                        <div class="img-wrapper after-img-wrapper" id="after-wrapper">
-                            <img id="after-img" src="" alt="ESRGAN Super-Resolution">
-                            <span class="img-badge badge-after">ESRGAN AI (512x512)</span>
-                        </div>
-                        <!-- Slider Handle Divider -->
+
+                        <!-- Central Drag Slider Divider -->
                         <div class="slider-divider" id="slider-divider">
-                            <div class="divider-line"></div>
-                            <div class="slider-handle">
+                            <div class="handle-circle">
                                 <i class="fa-solid fa-angle-left"></i>
                                 <i class="fa-solid fa-angle-right"></i>
                             </div>
@@ -149,14 +91,77 @@
                     </div>
                 </div>
 
-                <!-- Action Bar -->
-                <div class="action-bar hidden" id="action-bar">
-                    <a id="download-link" href="#" download="esrgan_enhanced.jpg" class="btn-secondary">
-                        <i class="fa-solid fa-arrow-down-to-bracket"></i> Download HD Image (512x512)
-                    </a>
+                <!-- Right Sidebar: Upscale Settings & Controls -->
+                <aside class="control-sidebar">
+                    <h3 class="sidebar-title">Upscale Settings</h3>
+
+                    <div class="setting-row">
+                        <label>Scale Factor</label>
+                        <select class="custom-select" id="scale-select">
+                            <option value="4x">4× Upscale (128➔512)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Model Engine</label>
+                        <select class="custom-select">
+                            <option>[Portrait & Editorial ESRGAN]</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="slider-label-group">
+                            <label><i class="fa-solid fa-crosshairs"></i> Edge Sharpening</label>
+                            <span id="sharpen-val">2.2×</span>
+                        </div>
+                        <input type="range" id="sharpen-slider" min="1.0" max="3.5" step="0.1" value="2.2" class="range-input">
+                    </div>
+
+                    <!-- Quality Metrics Display -->
+                    <div class="sidebar-metrics">
+                        <div class="metric-box">
+                            <span class="m-title">PSNR Gain</span>
+                            <span class="m-val" id="psnr-val">-- dB</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="m-title">SSIM Score</span>
+                            <span class="m-val" id="ssim-val">--</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="m-title">Latency</span>
+                            <span class="m-val" id="latency-val">-- ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn-upscale" id="process-btn" disabled>
+                            <span class="btn-txt"><i class="fa-solid fa-bolt"></i> Upscale Image (4x)</span>
+                            <span class="btn-spinner hidden" id="btn-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                        </button>
+
+                        <div class="secondary-btn-group">
+                            <button class="btn-reset" id="reset-btn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                            <a class="btn-download disabled" id="download-btn" href="#" download="lumina_upscaled.jpg">
+                                <i class="fa-solid fa-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Footer Details Bar -->
+            <footer class="studio-footer">
+                <div class="footer-info">
+                    <span class="info-label">Active Project:</span>
+                    <span class="info-val" id="project-filename">No Image Loaded</span>
                 </div>
-            </section>
-        </main>
+                <div class="footer-info">
+                    <span class="info-label">Image Specs:</span>
+                    <span class="info-val" id="project-specs">PNG / JPG • 4x ESRGAN Engine</span>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <script src="script.js"></script>

@@ -8,7 +8,8 @@ import torch
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from models.generator import RRDBNet
 from utils.metrics import calculate_psnr, calculate_ssim
@@ -66,14 +67,30 @@ def enhance_clarity(pil_img, boost_factor=2.2):
     contrast = ImageEnhance.Contrast(sharp).enhance(1.15)
     return contrast
 
+# Serve Web UI Frontend files
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "frontend")
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
 @app.get("/")
 def read_root():
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {
         "status": "online",
         "service": "ESRGAN Image Super-Resolution API",
         "device": str(DEVICE),
         "upscale_factor": "4x (128x128 -> 512x512)"
     }
+
+@app.get("/style.css")
+def get_css():
+    return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))
+
+@app.get("/script.js")
+def get_js():
+    return FileResponse(os.path.join(FRONTEND_DIR, "script.js"))
 
 @app.get("/health")
 def health_check():
@@ -87,8 +104,8 @@ async def super_resolution_endpoint(file: UploadFile = File(...)):
     applies edge sharpness and contrast enhancement, computes PSNR and SSIM quality metrics,
     and returns enhanced image payload + metadata.
     """
-    if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
-        raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG and PNG are supported.")
+    if file.content_type not in ["image/jpeg", "image/png", "image/jpg", "image/webp"]:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG, PNG, and WEBP are supported.")
 
     try:
         contents = await file.read()

@@ -1,37 +1,29 @@
-/* Theme Color Variables */
+/* Variation D: Dark Slate Charcoal & Muted Sage Editorial Studio */
 :root {
-    /* Light Mode Variables (Default) */
-    --bg-main: #f8fafc;
-    --card-bg: #ffffff;
-    --border-color: #e2e8f0;
-    --card-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-    --accent-color: #4f46e5;
-    --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
-    --accent-glow: rgba(79, 70, 229, 0.25);
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --dropzone-bg: #f1f5f9;
-    --dropzone-border: #cbd5e1;
-    --metric-bg: #f8fafc;
-    --slider-handle-bg: #4f46e5;
-    --success-color: #10b981;
-}
-
-[data-theme="dark"] {
-    /* Dark Mode Variables */
-    --bg-main: #0f172a;
-    --card-bg: #1e293b;
-    --border-color: #334155;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    --accent-color: #6366f1;
-    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-    --accent-glow: rgba(99, 102, 241, 0.35);
+    --bg-main: #12171d;
+    --card-bg: #1a2129;
+    --card-bg-elevated: #222b35;
+    --border-color: rgba(255, 255, 255, 0.09);
+    --border-accent: rgba(132, 169, 140, 0.3);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    
+    /* Color Palette Accents */
+    --sage-accent: #84a98c;
+    --sage-dark: #52796f;
+    --rose-gold: #e29578;
+    --champagne: #e0a96d;
+    --accent-gradient: linear-gradient(135deg, #84a98c 0%, #52796f 50%, #e29578 100%);
+    --accent-glow: rgba(132, 169, 140, 0.25);
+    
+    /* Typography Colors */
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --dropzone-bg: #0f172a;
-    --dropzone-border: #334155;
-    --metric-bg: #0f172a;
-    --slider-handle-bg: #6366f1;
+    --text-subtle: #64748b;
+    --dropzone-bg: #161c23;
+    --dropzone-border: #2e3b47;
+    --metric-bg: #161c23;
+    --slider-handle-bg: #84a98c;
+    --success-color: #10b981;
 }
 
 * {
@@ -44,6 +36,9 @@
 
 body {
     background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(132, 169, 140, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(226, 149, 120, 0.06) 0px, transparent 50%);
     color: var(--text-main);
     min-height: 100vh;
     display: flex;
@@ -62,10 +57,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 18px 28px;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 18px;
     margin-bottom: 24px;
     box-shadow: var(--card-shadow);
 }
@@ -73,13 +68,13 @@ body {
 .logo-group {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .logo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
     background: var(--accent-gradient);
     display: flex;
     align-items: center;
@@ -90,17 +85,19 @@ body {
 }
 
 .brand-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.3px;
     color: var(--text-main);
     display: block;
 }
 
 .brand-badge {
     font-size: 11px;
-    color: var(--accent-color);
+    color: var(--sage-accent);
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
 }
 
@@ -110,34 +107,14 @@ body {
     gap: 16px;
 }
 
-/* Theme Toggle Button */
-.theme-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--dropzone-bg);
-    border: 1px solid var(--border-color);
-    padding: 8px 14px;
-    border-radius: 20px;
-    color: var(--text-main);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.theme-toggle-btn:hover {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-}
-
 .status-indicator {
     display: flex;
     align-items: center;
     gap: 8px;
     background: rgba(16, 185, 129, 0.1);
-    padding: 8px 14px;
+    padding: 8px 16px;
     border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .status-dot {
@@ -171,13 +148,14 @@ body {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    padding: 24px;
+    padding: 26px;
     box-shadow: var(--card-shadow);
 }
 
 .section-header h2 {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
+    font-family: 'Outfit', sans-serif;
     margin-bottom: 6px;
     display: flex;
     align-items: center;
@@ -196,25 +174,26 @@ body {
     border: 2px dashed var(--dropzone-border);
     background: var(--dropzone-bg);
     border-radius: 16px;
-    padding: 30px 20px;
+    padding: 32px 20px;
     text-align: center;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     position: relative;
     overflow: hidden;
 }
 
 .dropzone:hover {
-    border-color: var(--accent-color);
+    border-color: var(--sage-accent);
+    background: rgba(132, 169, 140, 0.05);
     box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .upload-icon-wrapper {
-    width: 60px;
-    height: 60px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
-    background: rgba(79, 70, 229, 0.1);
-    color: var(--accent-color);
+    background: rgba(132, 169, 140, 0.12);
+    color: var(--sage-accent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -237,7 +216,7 @@ body {
 
 .file-types {
     font-size: 11px;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.05);
     padding: 4px 10px;
     border-radius: 12px;
     color: var(--text-muted);
@@ -289,13 +268,13 @@ body {
 }
 
 .setting-val {
-    color: var(--accent-color);
+    color: var(--rose-gold);
     font-weight: 700;
 }
 
 .custom-slider {
     width: 100%;
-    accent-color: var(--accent-color);
+    accent-color: var(--sage-accent);
     height: 6px;
     border-radius: 3px;
     background: var(--dropzone-border);
@@ -305,7 +284,7 @@ body {
 /* Primary Process Button */
 .btn-primary {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     border-radius: 14px;
     border: none;
     background: var(--accent-gradient);
@@ -352,18 +331,18 @@ body {
     background: var(--metric-bg);
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    padding: 14px 16px;
+    padding: 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .metric-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: rgba(79, 70, 229, 0.1);
-    color: var(--accent-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(132, 169, 140, 0.12);
+    color: var(--sage-accent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -404,13 +383,14 @@ body {
 
 .placeholder-icon {
     font-size: 44px;
-    color: var(--accent-color);
+    color: var(--sage-accent);
     margin-bottom: 16px;
 }
 
 .placeholder-state h3 {
     font-size: 18px;
     font-weight: 700;
+    font-family: 'Outfit', sans-serif;
     color: var(--text-main);
     margin-bottom: 8px;
 }
@@ -461,7 +441,7 @@ body {
 .img-badge {
     position: absolute;
     top: 14px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 700;
@@ -477,8 +457,9 @@ body {
 
 .badge-after {
     right: 14px;
-    background: var(--accent-color);
-    color: #fff;
+    background: var(--sage-accent);
+    color: #12171d;
+    font-weight: 800;
     box-shadow: 0 0 15px var(--accent-glow);
 }
 
@@ -489,7 +470,7 @@ body {
     left: 50%;
     width: 4px;
     height: 100%;
-    background: var(--slider-handle-bg);
+    background: var(--sage-accent);
     z-index: 10;
     cursor: ew-resize;
     transform: translateX(-50%);
@@ -500,15 +481,15 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
-    background: var(--slider-handle-bg);
+    width: 38px;
+    height: 38px;
+    background: var(--sage-accent);
     border: 3px solid #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: #12171d;
     font-size: 10px;
     gap: 2px;
     box-shadow: 0 0 15px var(--accent-glow);
@@ -525,9 +506,9 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 20px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    padding: 12px 22px;
+    background: var(--card-bg-elevated);
+    border: 1px solid var(--border-accent);
     border-radius: 12px;
     color: var(--text-main);
     text-decoration: none;
@@ -536,6 +517,6 @@ body {
 }
 
 .btn-secondary:hover {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
+    background: var(--sage-accent);
+    color: #12171d;
 }

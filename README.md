@@ -7,6 +7,8 @@
 
 A research-oriented, production-grade 4× Image Super-Resolution framework based on **Enhanced Super-Resolution Generative Adversarial Networks (ESRGAN)**. The system upscales low-resolution ($128 \times 128$) images to high-resolution ($512 \times 512$) with measurable structural and perceptual quality improvements across **PSNR**, **SSIM**, and **LPIPS** benchmarks.
 
+![ESRGAN Studio Dark Slate & Muted Sage UI](results/ui_preview.png)
+
 ---
 
 ## 📌 Core Features & Architecture

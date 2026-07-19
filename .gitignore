@@ -1,0 +1,19 @@
+# PyTorch & Large Model Checkpoints (>100MB)
+checkpoints/esrgan_latest.pth
+*.pth
+!checkpoints/esrgan_best.pth
+
+# Python & Environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+
+# IDE & OS Files
+.vscode/
+.idea/
+*.html
+.tempmediaStorage/

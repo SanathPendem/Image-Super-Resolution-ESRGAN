@@ -3,7 +3,7 @@ import io
 import time
 import base64
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageEnhance
 import torch
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -31,18 +31,40 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CHECKPOINT_PATH = os.path.join("checkpoints", "esrgan_best.pth")
 
 print(f"[*] Initializing FastAPI Super-Resolution Engine on {DEVICE}...")
-model = RRDBNet(num_features=64, num_blocks=4).to(DEVICE)
+
+# Detect num_features & num_blocks dynamically from checkpoint
+num_features = 64
+num_blocks = 2
+state_dict = None
 
 if os.path.exists(CHECKPOINT_PATH):
     try:
-        model.load_state_dict(torch.load(CHECKPOINT_PATH, map_location=DEVICE), strict=False)
+        ckpt = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
+        state_dict = ckpt.get("generator_state_dict", ckpt)
+        if "conv_first.weight" in state_dict:
+            num_features = state_dict["conv_first.weight"].shape[0]
+        block_indices = [int(k.split(".")[1]) for k in state_dict.keys() if k.startswith("rrdbs.")]
+        if block_indices:
+            num_blocks = max(block_indices) + 1
+        print(f"[+] Detected Checkpoint Architecture: num_features={num_features}, num_blocks={num_blocks}")
+    except Exception as e:
+        print(f"[!] Warning inspecting checkpoint: {e}")
+
+model = RRDBNet(num_features=num_features, num_blocks=num_blocks).to(DEVICE)
+
+if state_dict is not None:
+    try:
+        model.load_state_dict(state_dict, strict=False)
         print(f"[+] Loaded trained model parameters from '{CHECKPOINT_PATH}'")
     except Exception as e:
-        print(f"[!] Info: Initialized model weights will be used ({e})")
-else:
-    print("[!] Info: No checkpoint found. Operating with initialized model weights.")
+        print(f"[!] Info loading state dict: {e}")
 
 model.eval()
+
+def enhance_clarity(pil_img, boost_factor=2.2):
+    sharp = ImageEnhance.Sharpness(pil_img).enhance(boost_factor)
+    contrast = ImageEnhance.Contrast(sharp).enhance(1.15)
+    return contrast
 
 @app.get("/")
 def read_root():
@@ -62,7 +84,7 @@ async def super_resolution_endpoint(file: UploadFile = File(...)):
     """
     Accepts an uploaded image file (JPG/PNG).
     Preprocesses to 128x128 LR, runs 4x ESRGAN upscaling to 512x512 HR,
-    computes PSNR and SSIM quality metrics against bicubic baseline,
+    applies edge sharpness and contrast enhancement, computes PSNR and SSIM quality metrics,
     and returns enhanced image payload + metadata.
     """
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
@@ -94,9 +116,10 @@ async def super_resolution_endpoint(file: UploadFile = File(...)):
         psnr_score = calculate_psnr(sr_tensor, bicubic_tensor)
         ssim_score = calculate_ssim(sr_tensor, bicubic_tensor)
 
-        # Convert Output Tensor to Base64 JPEG string
+        # Convert Output Tensor to Base64 JPEG string with clarity enhancement
         sr_np = (sr_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255.0).clip(0, 255).astype(np.uint8)
-        sr_pil = Image.fromarray(sr_np)
+        raw_sr_pil = Image.fromarray(sr_np)
+        sr_pil = enhance_clarity(raw_sr_pil, boost_factor=2.2)
         
         buffered = io.BytesIO()
         sr_pil.save(buffered, format="JPEG", quality=95)

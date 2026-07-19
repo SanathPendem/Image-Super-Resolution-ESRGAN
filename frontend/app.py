@@ -1,10 +1,14 @@
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import io
 import time
 import requests
 import base64
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageEnhance
 import torch
 import streamlit as st
 
@@ -46,7 +50,8 @@ st.markdown('<div class="sub-header">Industry-Standard 4× AI Upscaling Engine (
 st.sidebar.header("⚙️ System Configuration")
 api_url = st.sidebar.text_input("FastAPI Endpoint URL", "http://localhost:8000")
 device_option = st.sidebar.radio("Inference Device", ["Auto (CUDA/CPU)", "CPU Only"])
-use_api = st.sidebar.checkbox("Use FastAPI Backend Server", value=False)
+use_api = st.sidebar.checkbox("Use FastAPI Backend Server", value=True)
+sharpness_boost = st.sidebar.slider("Edge Sharpening Intensity", min_value=1.0, max_value=3.5, value=2.2, step=0.1)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Architecture Spec")
@@ -62,15 +67,36 @@ def load_local_model():
     if not LOCAL_ENGINE_AVAILABLE:
         return None, "cpu"
     device = torch.device("cpu" if device_option == "CPU Only" else ("cuda" if torch.cuda.is_available() else "cpu"))
-    model = RRDBNet(num_features=64, num_blocks=4).to(device)
     ckpt_path = os.path.join("checkpoints", "esrgan_best.pth")
+    num_features = 64
+    num_blocks = 2
+    state_dict = None
+
     if os.path.exists(ckpt_path):
         try:
-            model.load_state_dict(torch.load(ckpt_path, map_location=device), strict=False)
+            ckpt = torch.load(ckpt_path, map_location=device)
+            state_dict = ckpt.get("generator_state_dict", ckpt)
+            if "conv_first.weight" in state_dict:
+                num_features = state_dict["conv_first.weight"].shape[0]
+            block_indices = [int(k.split(".")[1]) for k in state_dict.keys() if k.startswith("rrdbs.")]
+            if block_indices:
+                num_blocks = max(block_indices) + 1
+        except Exception:
+            pass
+
+    model = RRDBNet(num_features=num_features, num_blocks=num_blocks).to(device)
+    if state_dict is not None:
+        try:
+            model.load_state_dict(state_dict, strict=True)
         except Exception:
             pass
     model.eval()
     return model, device
+
+def enhance_clarity(pil_img, boost_factor=2.2):
+    sharp = ImageEnhance.Sharpness(pil_img).enhance(boost_factor)
+    contrast = ImageEnhance.Contrast(sharp).enhance(1.15)
+    return contrast
 
 uploaded_files = st.file_uploader("Upload Image(s) (JPG / PNG)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
@@ -105,7 +131,8 @@ if uploaded_files:
                     
                     base64_str = data["enhanced_image_base64"].split(",")[1]
                     sr_bytes = base64.b64decode(base64_str)
-                    sr_img_pil = Image.open(io.BytesIO(sr_bytes))
+                    raw_sr_pil = Image.open(io.BytesIO(sr_bytes))
+                    sr_img_pil = enhance_clarity(raw_sr_pil, boost_factor=sharpness_boost)
                 else:
                     st.error(f"API Error ({resp.status_code}): {resp.text}")
             except Exception as e:
@@ -127,7 +154,8 @@ if uploaded_files:
                 ssim_val = calculate_ssim(sr_tensor, bicubic_tensor)
 
                 sr_np = (sr_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255.0).clip(0, 255).astype(np.uint8)
-                sr_img_pil = Image.fromarray(sr_np)
+                raw_sr_pil = Image.fromarray(sr_np)
+                sr_img_pil = enhance_clarity(raw_sr_pil, boost_factor=sharpness_boost)
 
         col_m1, col_m2, col_m3, col_m4 = st.columns(4)
         with col_m1:

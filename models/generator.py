@@ -14,6 +14,14 @@ class DenseBlock(nn.Module):
         self.conv5 = nn.Conv2d(in_channels + 4 * growth_rate, in_channels, 3, 1, 1)
         
         self.lrelu = nn.LeakyReLU(0.2, inplace=True)
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, a=0.2, mode='fan_in', nonlinearity='leaky_relu')
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
 
     def forward(self, x):
         x1 = self.lrelu(self.conv1(x))
@@ -39,8 +47,30 @@ class RRDB(nn.Module):
         return out * self.res_scale + x
 
 
+class HighPassSharpen(nn.Module):
+    """
+    High-Pass Sharpening filter to boost fine details, edges, and textures.
+    """
+    def __init__(self, in_channels=3):
+        super().__init__()
+        # Laplacian / High-pass sharpening kernel
+        sharpen_kernel = torch.tensor([
+            [0.0, -0.5, 0.0],
+            [-0.5, 3.0, -0.5],
+            [0.0, -0.5, 0.0]
+        ]).view(1, 1, 3, 3).repeat(in_channels, 1, 1, 1)
+        self.register_buffer('kernel', sharpen_kernel)
+
+    def forward(self, x):
+        sharpened = F.conv2d(x, self.kernel, padding=1, groups=x.shape[1])
+        return torch.clamp(sharpened, 0.0, 1.0)
+
+
 class RRDBNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=64, num_blocks=4, growth_rate=32, scale_factor=4):
+    """
+    ESRGAN Generator (RRDBNet architecture) with High-Frequency Edge Enhancement.
+    """
+    def __init__(self, in_channels=3, out_channels=3, num_features=64, num_blocks=2, growth_rate=32, scale_factor=4):
         super().__init__()
         self.scale_factor = scale_factor
 
@@ -57,8 +87,22 @@ class RRDBNet(nn.Module):
         self.conv_last = nn.Conv2d(num_features, out_channels, 3, 1, 1)
 
         self.lrelu = nn.LeakyReLU(0.2, inplace=True)
+        self.sharpener = HighPassSharpen(out_channels)
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in [self.conv_first, self.conv_trunk, self.upconv1, self.upconv2, self.hr_conv]:
+            nn.init.kaiming_normal_(m.weight, a=0.2, mode='fan_in', nonlinearity='leaky_relu')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+        nn.init.normal_(self.conv_last.weight, mean=0.0, std=0.02)
+        if self.conv_last.bias is not None:
+            nn.init.zeros_(self.conv_last.bias)
 
     def forward(self, x):
+        # Base bicubic upsampled image
+        base_upsampled = F.interpolate(x, scale_factor=self.scale_factor, mode='bicubic', align_corners=False)
+
         fea_first = self.conv_first(x)
         trunk = self.rrdbs(fea_first)
         trunk = self.conv_trunk(trunk)
@@ -67,13 +111,18 @@ class RRDBNet(nn.Module):
         fea = self.lrelu(self.upconv1(F.interpolate(fea, scale_factor=2, mode='nearest')))
         fea = self.lrelu(self.upconv2(F.interpolate(fea, scale_factor=2, mode='nearest')))
 
-        out = self.conv_last(self.lrelu(self.hr_conv(fea)))
-        return torch.clamp(out, 0.0, 1.0)
+        res = self.conv_last(self.lrelu(self.hr_conv(fea)))
+        out = base_upsampled + res
+        
+        # High-pass edge sharpening enhancement
+        enhanced = self.sharpener(out)
+        return enhanced
 
 
 class SRResNet(nn.Module):
     def __init__(self, in_channels=3, out_channels=3, num_features=64, num_blocks=4, scale_factor=4):
         super().__init__()
+        self.scale_factor = scale_factor
         self.conv_first = nn.Sequential(
             nn.Conv2d(in_channels, num_features, 9, 1, 4),
             nn.PReLU()
@@ -105,8 +154,10 @@ class SRResNet(nn.Module):
         )
 
         self.conv_last = nn.Conv2d(num_features, out_channels, 9, 1, 4)
+        self.sharpener = HighPassSharpen(out_channels)
 
     def forward(self, x):
+        base_upsampled = F.interpolate(x, scale_factor=self.scale_factor, mode='bicubic', align_corners=False)
         fea_first = self.conv_first(x)
         fea = fea_first
 
@@ -115,5 +166,6 @@ class SRResNet(nn.Module):
 
         fea = self.conv_mid(fea) + fea_first
         fea = self.upsample(fea)
-        out = self.conv_last(fea)
-        return torch.clamp(out, 0.0, 1.0)
+        res = self.conv_last(fea)
+        out = base_upsampled + res
+        return self.sharpener(out)

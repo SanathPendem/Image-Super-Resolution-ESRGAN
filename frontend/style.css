@@ -299,6 +299,30 @@ body {
     font-size: 14px;
 }
 
+.btn-sample {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    background: rgba(132, 169, 140, 0.12);
+    border: 1px dashed var(--sage-accent);
+    border-radius: 12px;
+    color: var(--sage-accent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-sample:hover {
+    background: var(--sage-accent);
+    color: #ffffff;
+    border-style: solid;
+}
+
 /* Settings Controls */
 .settings-group {
     margin-bottom: 24px;

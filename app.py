@@ -92,6 +92,13 @@ def get_css():
 def get_js():
     return FileResponse(os.path.join(FRONTEND_DIR, "script.js"))
 
+@app.get("/sample-image")
+def get_sample_image():
+    sample_path = os.path.join("dataset", "valid", "lr", "valid_0001.png")
+    if os.path.exists(sample_path):
+        return FileResponse(sample_path, media_type="image/png")
+    raise HTTPException(status_code=404, detail="Sample image not found")
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "device": str(DEVICE)}

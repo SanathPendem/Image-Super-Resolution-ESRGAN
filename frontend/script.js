@@ -18,11 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyTheme(theme) {
         htmlElement.setAttribute('data-theme', theme);
+        themeIcon.className = 'fa-solid fa-circle-half-stroke';
         if (theme === 'light') {
-            themeIcon.className = 'fa-solid fa-moon';
             themeText.textContent = 'Dark Mode';
         } else {
-            themeIcon.className = 'fa-solid fa-sun';
             themeText.textContent = 'Light Mode';
         }
     }

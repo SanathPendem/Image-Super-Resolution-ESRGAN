@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,15 +17,15 @@
         <!-- Navigation Header -->
         <header class="navbar">
             <div class="logo-group">
-                <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
                 <div class="logo-text">
                     <span class="brand-title">ESRGAN Studio</span>
-                    <span class="brand-badge">4x Super-Resolution Engine</span>
+                    <span class="brand-badge">4x Neural Upscaling Engine</span>
                 </div>
             </div>
             <div class="header-right">
                 <button class="theme-toggle-btn" id="theme-toggle" title="Switch Theme">
-                    <i class="fa-solid fa-sun" id="theme-icon"></i>
+                    <i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
                     <span id="theme-text">Light Mode</span>
                 </button>
                 <div class="status-indicator">
@@ -40,7 +40,7 @@
             <!-- Left Panel: Controls & Upload -->
             <section class="control-panel glass-card">
                 <div class="section-header">
-                    <h2><i class="fa-solid fa-cloud-arrow-up"></i> Upload Source Image</h2>
+                    <h2><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Source Image</h2>
                     <p>Select or drag an image to upscale by 4× (128×128 → 512×512)</p>
                 </div>
 
@@ -49,7 +49,7 @@
                     <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" hidden>
                     <div class="dropzone-content" id="dropzone-prompt">
                         <div class="upload-icon-wrapper">
-                            <i class="fa-solid fa-image"></i>
+                            <i class="fa-solid fa-photo-film"></i>
                         </div>
                         <p class="drop-title">Drag & Drop Image Here</p>
                         <p class="drop-subtitle">or click to browse from device</p>
@@ -65,7 +65,7 @@
                 <div class="settings-group">
                     <div class="setting-item">
                         <div class="setting-header">
-                            <label for="sharpen-slider"><i class="fa-solid fa-sliders"></i> Edge Sharpening</label>
+                            <label for="sharpen-slider"><i class="fa-solid fa-wand-magic-sparkles"></i> Edge Sharpening</label>
                             <span class="setting-val" id="sharpen-val">2.2×</span>
                         </div>
                         <input type="range" id="sharpen-slider" min="1.0" max="3.5" step="0.1" value="2.2" class="custom-slider">
@@ -74,7 +74,7 @@
 
                 <!-- Process Action Button -->
                 <button class="btn-primary" id="process-btn" disabled>
-                    <span class="btn-text"><i class="fa-solid fa-bolt"></i> Enhance Image (4x Upscale)</span>
+                    <span class="btn-text"><i class="fa-solid fa-sparkles"></i> Enhance Image (4x Upscale)</span>
                     <span class="btn-spinner hidden" id="btn-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
                 </button>
             </section>
@@ -84,28 +84,28 @@
                 <!-- Metrics Bar -->
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                        <span class="metric-icon"><i class="fa-solid fa-chart-line"></i></span>
                         <div class="metric-info">
                             <span class="metric-title">PSNR Gain</span>
                             <span class="metric-value" id="psnr-val">-- dB</span>
                         </div>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-eye"></i></span>
+                        <span class="metric-icon"><i class="fa-solid fa-layer-group"></i></span>
                         <div class="metric-info">
                             <span class="metric-title">SSIM Score</span>
                             <span class="metric-value" id="ssim-val">--</span>
                         </div>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-stopwatch"></i></span>
+                        <span class="metric-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
                         <div class="metric-info">
                             <span class="metric-title">Latency</span>
                             <span class="metric-value" id="latency-val">-- ms</span>
                         </div>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-icon"><i class="fa-solid fa-expand"></i></span>
+                        <span class="metric-icon"><i class="fa-solid fa-display"></i></span>
                         <div class="metric-info">
                             <span class="metric-title">Resolution</span>
                             <span class="metric-value" id="resolution-val">128 ➔ 512</span>
@@ -116,7 +116,7 @@
                 <!-- Interactive Comparison Container -->
                 <div class="comparison-wrapper">
                     <div class="placeholder-state" id="placeholder-state">
-                        <div class="placeholder-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <div class="placeholder-icon"><i class="fa-solid fa-sliders"></i></div>
                         <h3>Interactive Comparison Studio</h3>
                         <p>Upload an image and click <strong>Enhance Image</strong> to view side-by-side Before/After results with interactive slider.</p>
                     </div>
@@ -137,8 +137,8 @@
                         <div class="slider-divider" id="slider-divider">
                             <div class="divider-line"></div>
                             <div class="slider-handle">
-                                <i class="fa-solid fa-chevron-left"></i>
-                                <i class="fa-solid fa-chevron-right"></i>
+                                <i class="fa-solid fa-angle-left"></i>
+                                <i class="fa-solid fa-angle-right"></i>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                 <!-- Action Bar -->
                 <div class="action-bar hidden" id="action-bar">
                     <a id="download-link" href="#" download="esrgan_enhanced.jpg" class="btn-secondary">
-                        <i class="fa-solid fa-download"></i> Download HD Image (512x512)
+                        <i class="fa-solid fa-arrow-down-to-bracket"></i> Download HD Image (512x512)
                     </a>
                 </div>
             </section>

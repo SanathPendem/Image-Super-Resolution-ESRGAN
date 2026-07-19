@@ -68,6 +68,14 @@ A research-oriented, production-grade 4× Image Super-Resolution framework based
 
 > **Key Findings**: ESRGAN demonstrates a **+5.33 dB PSNR gain** and a **78.8% reduction in LPIPS perceptual distance** compared to standard Bicubic upscaling, producing sharp high-frequency edge details.
 
+### 🖼️ Visual Studio Output & Comparison
+
+#### 1. Interactive UI Studio Interface
+![ESRGAN Studio Dark Slate & Muted Sage UI](results/ui_preview.png)
+
+#### 2. Model Evaluation Benchmark Matrix
+![Visual Comparison Matrix](results/comparison_matrix.png)
+
 ---
 
 ## 🚀 Quickstart & Usage
